@@ -27,20 +27,20 @@ const show = (req, res) => {
     }
 
     const movieSql = `
-    SELECT m.*
+    SELECT m.* , ROUND(AVG(r.vote)) AS average_vote
     FROM movies m
+    JOIN reviews r
+    ON r.movie_id = m.id
     WHERE m.id = ?
     `
     const reviewsSql = `
     SELECT r.*
     FROM reviews r
-    JOIN movies m
-    ON m.id = r.movie_id
-    WHERE m.id = ?
+    WHERE r.movie_id = ?
     `
     connection.query(movieSql, [id], (err, movieResults) => {
         if (err) return res.status(500).json({ error: `Database query failed: ${err}` });
-        if (movieResults.length === 0) return res.status(404).json({ error: `Film con ID ${id} non trovato.` });
+        if (movieResults.length === 0 || movieResults[0].id === null) return res.status(404).json({ error: `Film con ID ${id} non trovato.` });
 
         const movie = {
             ...movieResults[0],
