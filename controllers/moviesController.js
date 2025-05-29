@@ -6,10 +6,16 @@ const index = (req, res) => {
     FROM movies m
     `
     connection.query(sql, (err, results) => {
-        if (err) {
-            return res.status(500).json({ error: `Database query failed: ${err}` });
-        }
-        res.json(results)
+        if (err) return res.status(500).json({ error: `Database query failed: ${err}` });
+
+        const movies = results.map(result => {
+            const obj = {
+                ...result,
+                image: `${req.imagePath}${result.image}`
+            }
+            return obj;
+        })
+        res.json(movies);
     })
 }
 
