@@ -15,7 +15,12 @@ const index = (req, res) => {
 
 const show = (req, res) => {
     const id = parseInt(req.params.id);
-    const sql = `
+
+    if (isNaN(id)) {
+        return res.status(400).json({ error: `ID film non valido. Si prega di fornire un numero intero.` });
+    }
+
+    const moviesSql = `
     SELECT m.*
     FROM movies m
     WHERE m.id = ?
@@ -27,15 +32,14 @@ const show = (req, res) => {
     ON m.id = r.movie_id
     WHERE m.id = ?
     `
-    connection.query(sql, [id], (err, moviesResults) => {
+    connection.query(moviesSql, [id], (err, moviesResults) => {
         if (err) return res.status(500).json({ error: `Database query failed: ${err}` });
-        if (moviesResults === 0) return res.status(404).json({ error: `post not found` });
+        if (moviesResults.length === 0) return res.status(404).json({ error: `Film con ID ${id} non trovato.` });
 
         const movie = moviesResults[0];
 
         connection.query(reviewsSql, [id], (err, reviewsResults) => {
             if (err) return res.status(500).json({ error: `Database query failed: ${err}` });
-            if (reviewsResults === 0) return res.status(404).json({ error: `post not found` });
 
             movie.reviews = reviewsResults;
             res.json(movie);
