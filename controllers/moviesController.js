@@ -26,7 +26,7 @@ const show = (req, res) => {
         return res.status(400).json({ error: `ID film non valido. Si prega di fornire un numero intero.` });
     }
 
-    const moviesSql = `
+    const movieSql = `
     SELECT m.*
     FROM movies m
     WHERE m.id = ?
@@ -38,11 +38,14 @@ const show = (req, res) => {
     ON m.id = r.movie_id
     WHERE m.id = ?
     `
-    connection.query(moviesSql, [id], (err, moviesResults) => {
+    connection.query(movieSql, [id], (err, movieResults) => {
         if (err) return res.status(500).json({ error: `Database query failed: ${err}` });
-        if (moviesResults.length === 0) return res.status(404).json({ error: `Film con ID ${id} non trovato.` });
+        if (movieResults.length === 0) return res.status(404).json({ error: `Film con ID ${id} non trovato.` });
 
-        const movie = moviesResults[0];
+        const movie = {
+            ...movieResults[0],
+            image: `${req.imagePath}${movieResults[0].image}`
+        };
 
         connection.query(reviewsSql, [id], (err, reviewsResults) => {
             if (err) return res.status(500).json({ error: `Database query failed: ${err}` });
