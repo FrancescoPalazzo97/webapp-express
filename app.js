@@ -2,11 +2,15 @@ const express = require(`express`);
 const app = express();
 const port = process.env.PORT || 3000;
 
+const cors = require(`cors`);
+
 const moviesRouter = require(`./routers/moviesRouter`)
 
 const imagePath = require(`./middlewares/imagePath.js`);
 const notFound = require(`./middlewares/notFound.js`);
 const errorsHandler = require("./middlewares/errorsHandler.js");
+
+app.use(cors({ origin: process.env.FE_APP }));
 
 app.use(imagePath);
 
