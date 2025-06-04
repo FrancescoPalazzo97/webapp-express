@@ -2,8 +2,11 @@ const connection = require(`../data/db`)
 
 const index = (req, res) => {
     const sql = `
-    SELECT m.*
+    SELECT m.* , ROUND(AVG(r.vote)) AS average_vote
     FROM movies m
+    LEFT JOIN reviews r
+    ON r.movie_id = m.id
+    GROUP BY m.id
     `
     connection.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: `Database query failed: ${err}` });
@@ -29,7 +32,7 @@ const show = (req, res) => {
     const movieSql = `
     SELECT m.* , ROUND(AVG(r.vote)) AS average_vote
     FROM movies m
-    JOIN reviews r
+    LEFT JOIN reviews r
     ON r.movie_id = m.id
     WHERE m.id = ?
     `
